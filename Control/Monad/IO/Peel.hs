@@ -114,7 +114,7 @@ liftIOToIO f m = do
 --      'join' $ 'liftIO' $ f (k . g)
 -- @
 liftIOFuncToIO :: MonadPeelIO m =>
-                  ((a -> IO (m b)) -> IO (m c))-> (a -> m b) -> m c
+                  ((a -> IO (m b)) -> IO (m c)) -> (a -> m b) -> m c
 liftIOFuncToIO f g = do
   k <- peelIO
   join $ liftIO $ f (k . g)
