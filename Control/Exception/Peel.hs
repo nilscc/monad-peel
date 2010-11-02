@@ -116,7 +116,9 @@ block = liftIOOp_ E.block
 unblock :: MonadPeelIO m => m a -> m a
 unblock = liftIOOp_ E.unblock
 
--- |Generalized version of 'E.bracket'.
+-- |Generalized version of 'E.bracket'.  Note, any monadic side
+-- effects in @m@ of the \"release\" computation will be discarded; it
+-- is run only for its side effects in @IO@.
 bracket :: MonadPeelIO m =>
            m a -- ^ computation to run first (\"acquire resource\")
            -> (a -> m b) -- ^ computation to run last (\"release resource\")
@@ -129,7 +131,11 @@ bracket before after thing = do
   join $ liftIO $
     E.bracket (k before) (\x -> k' $ x >>= after) (\x -> k'' $ x >>= thing)
 
--- |Generalized version of 'E.bracket_'.
+-- |Generalized version of 'E.bracket_'.  Note, any monadic side
+-- effects in @m@ of /both/ the \"acquire\" and \"release\"
+-- computations will be discarded.  To keep the monadic side effects
+-- of the \"acquire\" computation, use 'bracket' with constant
+-- functions instead.
 bracket_ :: MonadPeelIO m => m a -> m b -> m c -> m c
 bracket_ before after thing = do
   k <- peelIO
@@ -137,7 +143,8 @@ bracket_ before after thing = do
   k'' <- peelIO
   join $ liftIO $ E.bracket_ (k before) (k' after) (k'' thing)
 
--- |Generalized version of 'E.bracketOnError'.
+-- |Generalized version of 'E.bracketOnError'.  Note, any monadic side
+-- effects in @m@ of the \"release\" computation will be discarded.
 bracketOnError :: MonadPeelIO m =>
                   m a -- ^ computation to run first (\"acquire resource\")
                   -> (a -> m b) -- ^ computation to run last (\"release resource\")
@@ -150,7 +157,8 @@ bracketOnError before after thing = do
   join $ liftIO $
     E.bracket (k before) (\x -> k' $ x >>= after) (\x -> k'' $ x >>= thing)
 
--- |Generalized version of 'E.finally'.
+-- |Generalized version of 'E.finally'.  Note, any monadic side
+-- effects in @m@ of the \"afterward\" computation will be discarded.
 finally :: MonadPeelIO m =>
            m a -- ^ computation to run first
            -> m b -- ^ computation to run afterward (even if an exception was raised)
@@ -160,7 +168,8 @@ finally a sequel = do
   k' <- peelIO
   join $ liftIO $ E.finally (k a) (k' sequel)
 
--- |Generalized version of 'E.onException'.
+-- |Generalized version of 'E.onException'.  Note, any monadic side
+-- effects in @m@ of the \"afterward\" computation will be discarded.
 onException :: MonadPeelIO m => m a -> m b -> m a
 onException m what = do
   k <- peelIO
