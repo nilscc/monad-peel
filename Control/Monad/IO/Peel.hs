@@ -23,7 +23,6 @@ module Control.Monad.IO.Peel (
 
 import Control.Monad
 import Control.Monad.IO.Class
-import Control.Monad.Trans.Class
 import Control.Monad.Trans.Peel
 import Control.Monad.Trans.Identity
 import Control.Monad.Trans.List
@@ -44,7 +43,7 @@ import Data.Monoid
 class MonadIO m => MonadPeelIO m where
   -- |@peelIO@ is a version of 'peel' that operates through an
   -- arbitrary stack of monad transformers directly to an inner 'IO'
-  -- (analagously to how 'liftIO' is a version of 'lift').  So it can
+  -- (analagously to how 'liftIO' is a version of @lift@).  So it can
   -- be used with 'liftIO' to lift control operations on 'IO' into any
   -- monad in 'MonadPeelIO'.  For example:
   --
