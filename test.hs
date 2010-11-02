@@ -9,21 +9,28 @@ import Control.Exception.Peel
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.IO.Peel (MonadPeelIO)
 import Data.IORef
+import Data.Maybe
 import Data.Typeable (Typeable)
 
 import Control.Monad.Trans.Identity
+import Control.Monad.Trans.List
+import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans.Writer
 import Control.Monad.Trans.Error
 import Control.Monad.Trans.State
+import qualified Control.Monad.Trans.RWS as RWS
 
 main :: IO ()
 main = defaultMain
     [ testSuite "IdentityT" runIdentityT
+    , testSuite "ListT" $ fmap head . runListT
+    , testSuite "MaybeT" $ fmap fromJust . runMaybeT
     , testSuite "ReaderT" $ flip runReaderT "reader state"
     , testSuite "WriterT" runWriterT'
     , testSuite "ErrorT" runErrorT'
     , testSuite "StateT" $ flip evalStateT "state state"
+    , testSuite "RWST" $ \m -> runRWST' m "RWS in" "RWS state"
     , testCase "ErrorT throwError" case_throwError
     , testCase "WriterT tell" case_tell
     ]
@@ -32,6 +39,8 @@ main = defaultMain
     runWriterT' = fmap fst . runWriterT
     runErrorT' :: Functor m => ErrorT String m () -> m ()
     runErrorT' = fmap (either (const ()) id) . runErrorT
+    runRWST' :: (Monad m, Functor m) => RWS.RWST r [Int] s m a -> r -> s -> m a
+    runRWST' m r s = fmap fst $ RWS.evalRWST m r s
 
 testSuite :: MonadPeelIO m => String -> (m () -> IO ()) -> Test
 testSuite s run = testGroup s
