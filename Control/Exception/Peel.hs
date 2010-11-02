@@ -97,12 +97,12 @@ sequenceEither (Right m) = liftM Right m
 
 -- |Generalized version of 'E.try'.
 try :: (MonadPeelIO m, Exception e) => m a -> m (Either e a)
-try = liftIOToIO (liftM sequenceEither . E.try)
+try = liftIOOp_ (liftM sequenceEither . E.try)
 
 -- |Generalized version of 'E.tryJust'.
 tryJust :: (MonadPeelIO m, Exception e) =>
            (e -> Maybe b) -> m a -> m (Either b a)
-tryJust p = liftIOToIO (liftM sequenceEither . E.tryJust p)
+tryJust p = liftIOOp_ (liftM sequenceEither . E.tryJust p)
 
 -- |Generalized version of 'E.evaluate'.
 evaluate :: MonadIO m => a -> m a
@@ -110,11 +110,11 @@ evaluate = liftIO . E.evaluate
 
 -- |Generalized version of 'E.block'.
 block :: MonadPeelIO m => m a -> m a
-block = liftIOToIO E.block
+block = liftIOOp_ E.block
 
 -- |Generalized version of 'E.unblock'.
 unblock :: MonadPeelIO m => m a -> m a
-unblock = liftIOToIO E.unblock
+unblock = liftIOOp_ E.unblock
 
 -- |Generalized version of 'E.bracket'.
 bracket :: MonadPeelIO m =>

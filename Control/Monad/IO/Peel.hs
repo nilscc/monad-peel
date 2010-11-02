@@ -11,14 +11,14 @@ This module defines the class 'MonadPeelIO' of 'IO'-based monads into
 which control operations on 'IO' (such as exception catching; see
 "Control.Exception.Peel") can be lifted.
 
-'liftIOToIO' and 'liftIOFuncToIO' enable convenient lifting of two
-common special cases of control operation types.
+'liftIOOp' and 'liftIOOp_' enable convenient lifting of two common
+special cases of control operation types.
 -}
 
 module Control.Monad.IO.Peel (
   MonadPeelIO(..),
-  liftIOToIO,
-  liftIOFuncToIO,
+  liftIOOp,
+  liftIOOp_,
   ) where
 
 import Control.Monad
@@ -89,32 +89,31 @@ instance (Monoid w, MonadPeelIO m) =>
   peelIO = liftPeel peelIO
 
 
--- |@liftIOToIO@ is a particular application of 'peelIO' that allows
--- lifting control operations of type @'IO' a -> 'IO' a@
--- (e.g. @block@) to @'MonadPeelIO' m => m a -> m a@.
---
--- @
---    'liftIOToIO' f m = do
---      k \<- 'peelIO'
---      'join' $ 'liftIO' $ f (k m)
--- @
-liftIOToIO :: MonadPeelIO m => (IO (m a) -> IO (m b)) -> m a -> m b
-liftIOToIO f m = do
-  k <- peelIO
-  join $ liftIO $ f (k m)
-
--- |@liftIOFuncToIO@ is a particular application of 'peelIO' that
--- allows lifting control operations of type @(a -> 'IO' b) -> 'IO' b@
+-- |@liftIOOp@ is a particular application of 'peelIO' that allows
+-- lifting control operations of type @(a -> 'IO' b) -> 'IO' b@
 -- (e.g. @alloca@, @withMVar v@) to @'MonadPeelIO' m => (a -> m b) ->
 -- m b@.
 --
 -- @
---    'liftIOFuncToIO' f g = do
+--    'liftIOOp' f g = do
 --      k \<- 'peelIO'
 --      'join' $ 'liftIO' $ f (k . g)
 -- @
-liftIOFuncToIO :: MonadPeelIO m =>
-                  ((a -> IO (m b)) -> IO (m c)) -> (a -> m b) -> m c
-liftIOFuncToIO f g = do
+liftIOOp :: MonadPeelIO m => ((a -> IO (m b)) -> IO (m c)) -> (a -> m b) -> m c
+liftIOOp f g = do
   k <- peelIO
   join $ liftIO $ f (k . g)
+
+-- |@liftIOOp_@ is a particular application of 'peelIO' that allows
+-- lifting control operations of type @'IO' a -> 'IO' a@
+-- (e.g. @block@) to @'MonadPeelIO' m => m a -> m a@.
+--
+-- @
+--    'liftIOOp_' f m = do
+--      k \<- 'peelIO'
+--      'join' $ 'liftIO' $ f (k m)
+-- @
+liftIOOp_ :: MonadPeelIO m => (IO (m a) -> IO (m b)) -> m a -> m b
+liftIOOp_ f m = do
+  k <- peelIO
+  join $ liftIO $ f (k m)
