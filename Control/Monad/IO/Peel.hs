@@ -91,7 +91,7 @@ instance (Monoid w, MonadPeelIO m) =>
 
 -- |@liftIOToIO@ is a particular application of 'peelIO' that allows
 -- lifting control operations of type @'IO' a -> 'IO' a@
--- (e.g. @block@, @forkIO@) to @'MonadPeelIO' m => m a -> m a@.
+-- (e.g. @block@) to @'MonadPeelIO' m => m a -> m a@.
 --
 -- @
 --    'liftIOToIO' f m = do
