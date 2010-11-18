@@ -143,8 +143,7 @@ bracket_ before after thing = do
   k'' <- peelIO
   join $ liftIO $ E.bracket_ (k before) (k' after) (k'' thing)
 
--- |Generalized version of 'E.bracketOnError'.  Note, any monadic side
--- effects in @m@ of the \"release\" computation will be discarded.
+-- |Generalized version of 'E.bracketOnError'.
 bracketOnError :: MonadPeelIO m =>
                   m a -- ^ computation to run first (\"acquire resource\")
                   -> (a -> m b) -- ^ computation to run last (\"release resource\")
@@ -168,8 +167,7 @@ finally a sequel = do
   k' <- peelIO
   join $ liftIO $ E.finally (k a) (k' sequel)
 
--- |Generalized version of 'E.onException'.  Note, any monadic side
--- effects in @m@ of the \"afterward\" computation will be discarded.
+-- |Generalized version of 'E.onException'.
 onException :: MonadPeelIO m => m a -> m b -> m a
 onException m what = do
   k <- peelIO
