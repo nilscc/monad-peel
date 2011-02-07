@@ -15,12 +15,17 @@ included for all the standard monad transformers from the
 'idPeel' and 'liftPeel' are provided to assist creation of
 @MonadPeelIO@-like classes (see "Control.Monad.IO.Peel") based on core
 monads other than 'IO'.
+
+'liftOp' and 'liftOp_' enable convenient lifting of two common special
+cases of control operation types.
 -}
 
 module Control.Monad.Trans.Peel (
   MonadTransPeel(..),
   idPeel,
   liftPeel,
+  liftOp,
+  liftOp_,
   ) where
 
 import Prelude hiding (catch)
@@ -196,3 +201,36 @@ liftPeel p = do
     return $ \m -> do
       m' <- k' $ k m
       return $ join $ lift m'
+
+-- |@liftOp@ is a particular application of 'peel' that allows lifting
+-- control operations of type @(a -> m b) -> m b@ to @'MonadTransPeel'
+-- t => (a -> t m b) -> t m b@.
+--
+-- @
+--    'liftOp' f g = do
+--      k \<- 'peel'
+--      'join' $ 'lift' $ f (k . g)
+-- @
+liftOp :: (MonadTransPeel t, Monad m, Monad n, Monad o, Monad (t n)) =>
+          ((a -> m (t o b)) -> n (t n c)) -> (a -> t m b) -> t n c
+liftOp f g = do
+  k <- peel
+  join $ lift $ f (k . g)
+
+-- |@liftOp_@ is a particular application of 'peel' that allows
+-- lifting control operations of type @m a -> m a@ to
+-- @'MonadTransPeel' m => t m a -> t m a@.
+--
+-- It can be thought of as a generalization of @mapReaderT@,
+-- @mapStateT@, etc.
+--
+-- @
+--    'liftOp_' f m = do
+--      k \<- 'peel'
+--      'join' $ 'lift' $ f (k m)
+-- @
+liftOp_ :: (MonadTransPeel t, Monad m, Monad n, Monad o, Monad (t n)) =>
+           (m (t o a) -> n (t n b)) -> t m a -> t n b
+liftOp_ f m = do
+  k <- peel
+  join $ lift $ f (k m)
