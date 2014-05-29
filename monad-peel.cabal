@@ -28,6 +28,5 @@ Library
     Control.Exception.Peel
 
   Build-depends:
-    base >= 3 && < 5,
-    extensible-exceptions,
+    base == 4.*,
     transformers == 0.4.*

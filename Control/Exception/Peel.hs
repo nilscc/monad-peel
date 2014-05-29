@@ -14,7 +14,7 @@ from 'IO' to all monads in 'MonadPeelIO'.
 -}
 
 module Control.Exception.Peel (
-  module Control.Exception.Extensible,
+  module Control.Exception,
   throwIO, ioError,
   catch, catches, Handler(..), catchJust,
   handle, handleJust,
@@ -28,7 +28,7 @@ import Prelude hiding (catch, ioError)
 import Control.Monad
 import Control.Monad.IO.Class
 import Control.Monad.IO.Peel
-import Control.Exception.Extensible hiding (
+import Control.Exception hiding (
   throwIO, ioError,
   catch, catches, Handler(..), catchJust,
   handle, handleJust,
@@ -37,7 +37,7 @@ import Control.Exception.Extensible hiding (
   bracket, bracket_, bracketOnError,
   finally, onException,
   )
-import qualified Control.Exception.Extensible as E
+import qualified Control.Exception as E
 
 -- |Generalized version of 'E.throwIO'.
 throwIO :: (MonadIO m, Exception e) => e -> m a
