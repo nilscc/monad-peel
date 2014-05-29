@@ -34,7 +34,7 @@ import Control.Monad.Trans.Class
 import Control.Monad.Trans.Identity
 import Control.Monad.Trans.List
 import Control.Monad.Trans.Maybe
-import Control.Monad.Trans.Error
+import Control.Monad.Trans.Except
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans.State
 import qualified Control.Monad.Trans.State.Strict as Strict
@@ -97,10 +97,10 @@ instance MonadTransPeel MaybeT where
     xm <- runMaybeT m
     return $ maybe mzero return xm
 
-instance Error e => MonadTransPeel (ErrorT e) where
+instance MonadTransPeel (ExceptT e) where
   peel = return $ \m -> do
-    xe <- runErrorT m
-    return $ either throwError return xe
+    xe <- runExceptT m
+    return $ either throwE return xe
 
 instance MonadTransPeel (ReaderT r) where
   peel = asks $ \r m -> do

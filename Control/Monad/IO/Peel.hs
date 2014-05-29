@@ -27,7 +27,7 @@ import Control.Monad.Trans.Peel
 import Control.Monad.Trans.Identity
 import Control.Monad.Trans.List
 import Control.Monad.Trans.Maybe
-import Control.Monad.Trans.Error
+import Control.Monad.Trans.Except
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans.State
 import qualified Control.Monad.Trans.State.Strict as Strict
@@ -70,7 +70,7 @@ instance MonadPeelIO m => MonadPeelIO (ListT m) where
   peelIO = liftPeel peelIO
 instance MonadPeelIO m => MonadPeelIO (MaybeT m) where
   peelIO = liftPeel peelIO
-instance (Error e, MonadPeelIO m) => MonadPeelIO (ErrorT e m) where
+instance (MonadPeelIO m) => MonadPeelIO (ExceptT e m) where
   peelIO = liftPeel peelIO
 instance MonadPeelIO m => MonadPeelIO (ReaderT r m) where
   peelIO = liftPeel peelIO
